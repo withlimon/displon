@@ -1,0 +1,6 @@
+#include <winuser.h>
+1 RT_MANIFEST "DisplonUI.manifest"
+// Prefer local copy; build also keeps ../assets/icons/displon.ico
+1 ICON "displon.ico"
+// Start-up splash, decoded at run time by ui/SplashScreen.cpp (RCDATA id 2).
+2 RCDATA "DisplonSplashScreen.jpg"
