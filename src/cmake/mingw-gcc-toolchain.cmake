@@ -1,0 +1,12 @@
+# Fallback toolchain: Debian/Ubuntu `mingw-w64` GCC (posix threads). Same mingw-w64
+# headers/import libs as llvm-mingw, but GCC instead of clang and MSVCRT instead of UCRT.
+# Only for compile-checking when llvm-mingw cannot be downloaded (see plan.md Section 11).
+# Usage: cmake -G Ninja -B build-win -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-gcc-toolchain.cmake
+set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_SYSTEM_PROCESSOR x86_64)
+set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc-posix)
+set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++-posix)
+set(CMAKE_RC_COMPILER  x86_64-w64-mingw32-windres)
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
