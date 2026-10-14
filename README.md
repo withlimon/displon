@@ -1,7 +1,6 @@
 ![Displon logo](assets/logo/displon-logo.jpg)
 
-# Displon – Free Open Source Focus App & Distraction Blocker for Windows
-
+# Displon – Free Open Source Focus App & Distraction Blocker for Windows [![CI](https://github.com/withlimon/displon/actions/workflows/ci.yml/badge.svg)](https://github.com/withlimon/displon/actions/workflows/ci.yml)
 **Displon** is a free, open source native Windows app that lets you run only the applications you list. It helps you stop multitasking and focus on a single task with Pomodoro and schedule-based blocking.
 
 > [!WARNING]
@@ -18,11 +17,17 @@
 * Custom block duration, from 1 minute to any time range
 
 ## Screenshots
+### Settings 
 ![Displon settings screen: block Windows Task Manager and Windows Settings, force close or minimize apps](assets/screenshots/displon-settings-block-task-manager-windows.png)
+### Whitelist 
 ![Displon whitelist screen: add allowed apps, import or export the app list for Windows](assets/screenshots/displon-whitelist-allowed-apps-windows.png)
+### Duration 
 ![Displon duration screen: set a focus timer from 1 minute to 1 day or until a date](assets/screenshots/displon-duration-timer-focus-session.png)
+### Breaks
 ![Displon breaks screen: no breaks, Pomodoro or allowance mode for focus blocking](assets/screenshots/displon-breaks-pomodoro-allowance.png)
+### Confirmation 
 ![Displon ready to lock summary: allowed apps, duration, breaks and blocked Task Manager](assets/screenshots/displon-start-lock-confirmation.png)
+### Lock Finish 
 ![Displon block ended screen showing finished focus session and blocked app history](assets/screenshots/displon-block-ended-focus-complete.png)
 
 ## System Requirements
