@@ -19,7 +19,6 @@ jobs:
           Invoke-WebRequest "https://github.com/mstorsjo/llvm-mingw/releases/download/$env:LLVM_MINGW_VERSION/$name.zip" -OutFile llvm-mingw.zip
           Expand-Archive llvm-mingw.zip -DestinationPath "$env:RUNNER_TEMP"
           $root = "$env:RUNNER_TEMP\$name"
-          "LLVM_MINGW_ROOT=$($root -replace '\\','/')" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
           "$root\bin" | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
 
       - name: Install Ninja
