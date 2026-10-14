@@ -36,8 +36,26 @@
 * RAM: 100 MB
 * GPU: Not required
 
-## Download
-* [Displon x64 Windows v0.1 alpha](https://github.com/withlimon/displon/releases/download/alpha/Displon.x64.v0.1-alpha.exe)
+## Installation
+### Install with Scoop
+Too install Displon,open Poweshell im Administration mode and type:
+```bash
+scoop bucket add displon https://github.com/withlimon/displon
+scoop install displon
+```
+You can update easily later by:
+```bash
+scoop update displon
+```
+You can uninstall it by:
+```bash
+scoop uninstall displon
+```
+
+
+
+### Download from Github Releases
+* [Displon x64 Windows](https://github.com/withlimon/displon/releases)
 
 ## Support / Critical Bug
 Open an [issue](https://github.com/withlimon/displon/issues) or email `limondasplus@gmail.com`.
