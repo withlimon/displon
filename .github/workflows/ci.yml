@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    env:
+      LLVM_MINGW_VERSION: "20260908"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install llvm-mingw (UCRT, x86_64)
+        shell: pwsh
+        run: |
+          $name = "llvm-mingw-$env:LLVM_MINGW_VERSION-ucrt-x86_64"
+          Invoke-WebRequest "https://github.com/mstorsjo/llvm-mingw/releases/download/$env:LLVM_MINGW_VERSION/$name.zip" -OutFile llvm-mingw.zip
+          Expand-Archive llvm-mingw.zip -DestinationPath "$env:RUNNER_TEMP"
+          "LLVM_MINGW_ROOT=$env:RUNNER_TEMP\$name" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "$env:RUNNER_TEMP\$name\bin" | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
+
+      - name: Install Ninja
+        run: choco install ninja -y --no-progress
+
+      - name: Configure
+        working-directory: src
+        run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/llvm-mingw-toolchain.cmake
+
+      - name: Build
+        working-directory: src
+        run: cmake --build build
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: displon-windows-x64
+          path: |
+            src/build/*.exe
+            src/build/assets
+          if-no-files-found: error
