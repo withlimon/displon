@@ -37,7 +37,7 @@
 * GPU: Not required
 
 ## Download
-* [Displon x64 Windows v0.1 alpha](https://github.com/withlimon/displon/releases)
+* [Displon x64 Windows v0.1 alpha](https://github.com/withlimon/displon/releases/download/alpha/Displon.x64.v0.1-alpha.exe)
 
 ## Support / Critical Bug
 Open an [issue](https://github.com/withlimon/displon/issues) or email `limondasplus@gmail.com`.
