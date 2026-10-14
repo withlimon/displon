@@ -1,0 +1,224 @@
+name: Daily Release
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # every day, 03:00 UTC
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Release even if there are no new commits"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.c.outputs.changed }}
+      version: ${{ steps.c.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: c
+        env:
+          FORCE: ${{ github.event.inputs.force }}
+        run: |
+          last_tag=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)
+          if [ -z "$last_tag" ]; then
+            count=1
+          else
+            count=$(git rev-list "${last_tag}..HEAD" --count -- . ':(exclude)bucket')
+          fi
+          echo "Last tag: ${last_tag:-none}, new commits: $count"
+
+          if [ "$count" -gt 0 ] || [ "$FORCE" = "true" ]; then
+            version="0.1.$(date -u +%Y%m%d)"
+            # second release on the same day -> add a build number
+            if git rev-parse "v$version" >/dev/null 2>&1; then
+              version="$version.$(git tag -l "v$version*" | wc -l)"
+            fi
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "version=$version" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No new commits since $last_tag - skipping release."
+          fi
+
+  release:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+      WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+      CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+
+      - name: Build and test
+        shell: msys2 {0}
+        run: |
+          cmake -S src -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+          ctest --test-dir build --output-on-failure
+
+      - name: Build installer (Inno Setup)
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          $iss = "src/installer/Displon.iss"
+          (Get-Content $iss) -replace '#define AppVersion ".*"', "#define AppVersion `"$env:VERSION`"" | Set-Content $iss
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" $iss "/DBuildDir=$env:GITHUB_WORKSPACE\build"
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+          Move-Item src/installer/Output/Displon-Setup.exe "Displon-Setup-$env:VERSION.exe"
+
+      - name: Checksum and Chocolatey package
+        shell: pwsh
+        run: |
+          $exe  = "Displon-Setup-$env:VERSION.exe"
+          $hash = (Get-FileHash $exe -Algorithm SHA256).Hash
+          "$hash  $exe" | Set-Content "$exe.sha256"
+
+          $repo = "${{ github.repository }}"
+          $url  = "https://github.com/$repo/releases/download/v$env:VERSION/$exe"
+
+          New-Item -ItemType Directory -Force choco/tools | Out-Null
+          @"
+          <?xml version="1.0" encoding="utf-8"?>
+          <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+            <metadata>
+              <id>displon</id>
+              <version>$env:VERSION</version>
+              <title>Displon</title>
+              <authors>Displon</authors>
+              <projectUrl>https://github.com/$repo</projectUrl>
+              <projectSourceUrl>https://github.com/$repo</projectSourceUrl>
+              <bugTrackerUrl>https://github.com/$repo/issues</bugTrackerUrl>
+              <licenseUrl>https://www.gnu.org/licenses/gpl-3.0.html</licenseUrl>
+              <requireLicenseAcceptance>false</requireLicenseAcceptance>
+              <tags>focus pomodoro distraction-blocker productivity windows</tags>
+              <summary>Free open source focus app and distraction blocker for Windows</summary>
+              <description>Displon lets you run only the applications you list, with Pomodoro and schedule-based blocking.</description>
+            </metadata>
+            <files><file src="tools\**" target="tools" /></files>
+          </package>
+          "@ | Set-Content choco/displon.nuspec -Encoding utf8
+
+          @"
+          `$ErrorActionPreference = 'Stop'
+          Install-ChocolateyPackage ``
+            -PackageName 'displon' ``
+            -FileType 'exe' ``
+            -Url64bit '$url' ``
+            -Checksum64 '$hash' ``
+            -ChecksumType64 'sha256' ``
+            -SilentArgs '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' ``
+            -ValidExitCodes @(0)
+          "@ | Set-Content choco/tools/chocolateyinstall.ps1 -Encoding utf8
+
+          @"
+          `$ErrorActionPreference = 'Stop'
+          `$un = Join-Path `$env:ProgramFiles 'Displon\unins000.exe'
+          if (Test-Path `$un) { Start-Process `$un -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait }
+          "@ | Set-Content choco/tools/chocolateyuninstall.ps1 -Encoding utf8
+
+          choco pack choco/displon.nuspec --outputdirectory .
+
+      - name: Publish GitHub release
+        shell: pwsh
+        run: |
+          gh release create "v$env:VERSION" `
+            "Displon-Setup-$env:VERSION.exe" `
+            "Displon-Setup-$env:VERSION.exe.sha256" `
+            "displon.$env:VERSION.nupkg" `
+            --title "Displon v$env:VERSION" `
+            --generate-notes `
+            --target "${{ github.sha }}"
+
+      - name: Push to Chocolatey
+        if: env.CHOCO_API_KEY != ''
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          choco push "displon.$env:VERSION.nupkg" `
+            --source https://push.chocolatey.org/ `
+            --api-key $env:CHOCO_API_KEY
+
+      - name: Update winget
+        if: env.WINGET_TOKEN != '' && vars.WINGET_ID != ''
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          $url = "https://github.com/${{ github.repository }}/releases/download/v$env:VERSION/Displon-Setup-$env:VERSION.exe"
+          ./wingetcreate.exe update "${{ vars.WINGET_ID }}" `
+            --version $env:VERSION `
+            --urls $url `
+            --submit `
+            --token $env:WINGET_TOKEN
+
+      - name: Update Scoop manifest (bucket/displon.json)
+        shell: pwsh
+        run: |
+          $repo = "${{ github.repository }}"
+          $exe  = "Displon-Setup-$env:VERSION.exe"
+          $hash = (Get-Content "$exe.sha256").Split(' ')[0].ToLower()
+          $base = "https://github.com/$repo/releases/download"
+
+          $manifest = [ordered]@{
+            version      = $env:VERSION
+            description  = "Free open source focus app and distraction blocker for Windows"
+            homepage     = "https://github.com/$repo"
+            license      = "GPL-3.0-only"
+            notes        = "Run in an elevated (admin) terminal. Installs the Displon background service."
+            architecture = [ordered]@{
+              "64bit" = [ordered]@{
+                url  = "$base/v$env:VERSION/$exe#/setup.exe"
+                hash = $hash
+              }
+            }
+            installer    = [ordered]@{
+              file = "setup.exe"
+              args = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-")
+            }
+            uninstaller  = [ordered]@{
+              script = @('& "$env:ProgramFiles\Displon\unins000.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART')
+            }
+            checkver     = [ordered]@{ github = "https://github.com/$repo" }
+            autoupdate   = [ordered]@{
+              architecture = [ordered]@{
+                "64bit" = [ordered]@{
+                  url = $base + '/v$version/Displon-Setup-$version.exe#/setup.exe'
+                }
+              }
+            }
+          }
+
+          New-Item -ItemType Directory -Force bucket | Out-Null
+          $manifest | ConvertTo-Json -Depth 10 | Set-Content bucket/displon.json -Encoding utf8
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bucket/displon.json
+          git commit -m "scoop: displon $env:VERSION"
+          git pull --rebase origin "${{ github.event.repository.default_branch }}"
+          git push origin "HEAD:${{ github.event.repository.default_branch }}"
