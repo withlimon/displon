@@ -4,7 +4,7 @@
 **Displon** is a free, open source native Windows app that lets you run only the applications you list. It helps you stop multitasking and focus on a single task with Pomodoro and schedule-based blocking.
 
 > [!WARNING]
-> Displon v0.1 alpha is tested on several Windows 11 devices. Windows 10 support is still under testing.
+> Displon is tested on several Windows 11 devices. Windows 10 support is still under testing.I am also trying to add more features.
 
 ## Features
 * Import / export app list from file
