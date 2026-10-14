@@ -56,7 +56,7 @@ scoop uninstall displon
 
 
 ### Download from Github Releases
-* [Displon x64 Windows](https://github.com/withlimon/displon/releases)
+* [Displon x64 Windows](https://github.com/withlimon/displon/releases/latest)
 
 ## Support / Critical Bug
 Open an [issue](https://github.com/withlimon/displon/issues) or email `limondasplus@gmail.com`.
