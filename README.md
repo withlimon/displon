@@ -15,6 +15,7 @@
 * Uninstallation block during lockout
 * Block time tracking
 * Custom block duration, from 1 minute to any time range
+* Autoswich between dark and light mode based on system setting
 
 ## Screenshots
 ### Settings 
