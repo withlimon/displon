@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Displon logo (vector): black "D" on an off-white tile so it stays readable on both light and dark themes.
+     Used by the UI header via IconAtlas (rasterized in full color with nanosvg). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="720" viewBox="0 0 720 720">
+  <rect width="720" height="720" fill="#f8f8f8"/>
+  <path fill="#1b1b19" fill-rule="evenodd" d="M155 119 H372 C505 119 594 222 594 352 C594 484 505 586 372 586 H155 Z M286 233 V472 H362 C425 472 461 430 461 352 C461 275 425 233 362 233 Z"/>
+</svg>
