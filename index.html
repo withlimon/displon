@@ -13,6 +13,8 @@
 <meta name="theme-color" content="#0D0D0D" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <link rel="canonical" href="https://withlimon.github.io/displon/">
+<link rel="alternate" hreflang="en" href="https://withlimon.github.io/displon/">
+<link rel="alternate" hreflang="x-default" href="https://withlimon.github.io/displon/">
 <link rel="icon" type="image/jpeg" href="assets/logo/displon-logo.jpg">
 <link rel="apple-touch-icon" href="assets/logo/displon-logo.jpg">
 
@@ -23,6 +25,7 @@
 <meta property="og:description" content="Open source Cold Turkey alternative written in C++. Run only the apps you list, with Pomodoro and schedule-based lockouts for Windows 10/11.">
 <meta property="og:url" content="https://withlimon.github.io/displon/">
 <meta property="og:image" content="https://withlimon.github.io/displon/assets/screenshots/displon-whitelist-allowed-apps-windows.png">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:alt" content="Displon whitelist screen: choose the only apps allowed to run while the focus lock is on">
 <meta property="og:image:width" content="1432">
 <meta property="og:image:height" content="997">
@@ -63,8 +66,11 @@
         "Autostart block, even if killed from Task Manager or after a system restart",
         "Uninstallation block during lockout",
         "Block time tracking",
-        "Custom block duration, from 1 minute to any time range"
+        "Custom block duration, from 1 minute to any time range",
+        "Autoswich between dark and light mode based on system setting"
       ],
+      "keywords": "focus app, distraction blocker, app blocker for Windows, Cold Turkey alternative, Pomodoro timer, whitelist apps, open source, Windows 10, Windows 11",
+      "releaseNotes": "https://github.com/withlimon/displon/releases",
       "softwareRequirements": "Windows 10 / 11 (x64), 20 MB storage, 100 MB RAM, no GPU required",
       "isAccessibleForFree": true,
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
@@ -147,6 +153,10 @@ td{padding:8px 14px;border-bottom:1px solid var(--border);color:var(--muted)}
 td:first-child{color:var(--text);width:40%}
 tr:last-child td{border-bottom:0}
 .shots img{display:block;margin:12px 0;border:1px solid var(--border)}
+.code{position:relative;margin:12px 0}
+.code pre{margin:0;padding:14px 84px 14px 16px;background:var(--layer);border:1px solid var(--border);border-radius:12px;overflow-x:auto;color:var(--text)}
+.copy{position:absolute;top:8px;right:8px;padding:4px 14px;border-radius:999px;border:1px solid var(--text);background:transparent;color:var(--text);font:500 .85rem "IBM Plex Sans",system-ui,"Segoe UI",Arial,sans-serif;cursor:pointer}
+.copy:hover{background:var(--text);color:var(--bg)}
 </style>
 </head>
 <body>
@@ -172,15 +182,22 @@ tr:last-child td{border-bottom:0}
   <li>Uninstallation block during lockout</li>
   <li>Block time tracking</li>
   <li>Custom block duration, from 1 minute to any time range</li>
+  <li>Autoswich between dark and light mode based on system setting</li>
 </ul>
 
 <h2 id="screenshots">Screenshots</h2>
 <div class="shots">
+  <h3>Settings</h3>
   <img src="assets/screenshots/displon-settings-block-task-manager-windows.png" alt="Displon settings screen: block Windows Task Manager and Windows Settings, force close or minimize apps" width="1442" height="1000" loading="lazy">
+  <h3>Whitelist</h3>
   <img src="assets/screenshots/displon-whitelist-allowed-apps-windows.png" alt="Displon whitelist screen: add allowed apps, import or export the app list for Windows" width="1432" height="997" loading="lazy">
+  <h3>Duration</h3>
   <img src="assets/screenshots/displon-duration-timer-focus-session.png" alt="Displon duration screen: set a focus timer from 1 minute to 1 day or until a date" width="1439" height="997" loading="lazy">
+  <h3>Breaks</h3>
   <img src="assets/screenshots/displon-breaks-pomodoro-allowance.png" alt="Displon breaks screen: no breaks, Pomodoro or allowance mode for focus blocking" width="1433" height="999" loading="lazy">
+  <h3>Confirmation</h3>
   <img src="assets/screenshots/displon-start-lock-confirmation.png" alt="Displon ready to lock summary: allowed apps, duration, breaks and blocked Task Manager" width="1434" height="995" loading="lazy">
+  <h3>Lock Finish</h3>
   <img src="assets/screenshots/displon-block-ended-focus-complete.png" alt="Displon block ended screen showing finished focus session and blocked app history" width="1431" height="999" loading="lazy">
 </div>
 
@@ -192,6 +209,34 @@ tr:last-child td{border-bottom:0}
   <tr><td>GPU</td><td>Not required</td></tr>
 </table>
 
+<h2 id="installation">Installation</h2>
+<h3>Install with Scoop</h3>
+<p>Too install Displon,open Poweshell im Administration mode and type:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop bucket add displon https://github.com/withlimon/displon
+scoop install displon</code></pre></div>
+<p>You can update easily later by:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop update displon</code></pre></div>
+<p>You can uninstall it by:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop uninstall displon</code></pre></div>
+
+<h3>Install with Chocolatey</h3>
+<p>To install Displon, open PowerShell in Administrator mode and type:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>choco install displon</code></pre></div>
+<p>You can update easily later by:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>choco upgrade displon</code></pre></div>
+<p>You can uninstall it by:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>choco uninstall displon</code></pre></div>
+
+<!--
+<h3>Install with winget</h3>
+<p>To install Displon, open PowerShell in Administrator mode and type:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>winget install withlimon.Displon</code></pre></div>
+<p>You can update easily later by:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>winget upgrade withlimon.Displon</code></pre></div>
+<p>You can uninstall it by:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>winget uninstall withlimon.Displon</code></pre></div>
+-->
+
 <h2 id="download">Download</h2>
 <p><a href="https://github.com/withlimon/displon/releases">Displon x64 Windows v0.1 alpha</a></p>
 
@@ -202,5 +247,15 @@ tr:last-child td{border-bottom:0}
 <p>Free and open source under the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL v3</a>.</p>
 
 </main>
+<script>
+document.querySelectorAll('.copy').forEach(function(b){
+  b.addEventListener('click',function(){
+    var t=b.parentNode.querySelector('code').innerText;
+    var done=function(){b.textContent='Copied!';setTimeout(function(){b.textContent='Copy'},1500)};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,fallback)}else{fallback()}
+    function fallback(){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){}document.body.removeChild(a)}
+  });
+});
+</script>
 </body>
 </html>
