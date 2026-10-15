@@ -52,6 +52,37 @@ You can uninstall it by:
 ```bash
 scoop uninstall displon
 ```
+<--
+### Install with Chocolatey
+To install Displon, open PowerShell in Administrator mode and type:
+```bash
+choco install displon
+```
+You can update easily later by:
+```bash
+choco upgrade displon
+```
+You can uninstall it by:
+```bash
+choco uninstall displon
+```
+
+<!--
+### Install with winget
+To install Displon, open PowerShell in Administrator mode and type:
+```bash
+winget install withlimon.Displon
+```
+You can update easily later by:
+```bash
+winget upgrade withlimon.Displon
+```
+You can uninstall it by:
+```bash
+winget uninstall withlimon.Displon
+```
+-->
+
 
 
 
