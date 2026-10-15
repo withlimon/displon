@@ -1,13 +1,13 @@
 {
-  "version": "0.1.20261014.2",
+  "version": "0.1.20261015",
   "description": "Free open source focus app and distraction blocker for Windows",
   "homepage": "https://github.com/withlimon/displon",
   "license": "GPL-3.0-only",
   "notes": "Run in an elevated (admin) terminal. Installs the Displon background service.",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/withlimon/displon/releases/download/v0.1.20261014.2/Displon-Setup-0.1.20261014.2.exe#/setup.exe",
-      "hash": "a96646499d855e350b0c145480fcb057a92effd9a160b7f90f0e79ae2cf78fa0"
+      "url": "https://github.com/withlimon/displon/releases/download/v0.1.20261015/Displon-Setup-0.1.20261015.exe#/setup.exe",
+      "hash": "f6630d97f152edf5c6f6d7d0385c77940e073f2bed5204d422a30fad9abfc8e6"
     }
   },
   "installer": {
