@@ -1,0 +1,39 @@
+name: Spam Guard
+
+# No checkout, no PR code executed — safe with pull_request_target.
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  spam:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const item = context.payload.issue || context.payload.pull_request;
+            if (['OWNER','MEMBER','COLLABORATOR'].includes(item.author_association)) return;
+            const title = item.title || '';
+            const body = item.body || '';
+            const text = `${title}\n${body}`.toLowerCase();
+            const links = (text.match(/https?:\/\//g) || []).length;
+            const kw = /(casino|viagra|crypto giveaway|airdrop|free money|buy followers|seo service|loan offer|telegram me|whatsapp me|click here to win|porn|escort)/;
+            const empty = body.trim().length === 0 && title.trim().length < 4;
+            const spam = kw.test(text) || links >= 4 || empty;
+            if (!spam) return;
+            const n = item.number;
+            await github.rest.issues.createComment({ ...context.repo, issue_number: n,
+              body: '🚫 Automatically closed as spam. If this was a mistake, open a new one with clear details.' });
+            if (context.payload.pull_request) {
+              await github.rest.pulls.update({ ...context.repo, pull_number: n, state: 'closed' });
+            } else {
+              await github.rest.issues.update({ ...context.repo, issue_number: n,
+                state: 'closed', state_reason: 'not_planned' });
+            }
