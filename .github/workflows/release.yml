@@ -115,8 +115,13 @@ jobs:
               <version>$env:VERSION</version>
               <title>Displon</title>
               <authors>Displon</authors>
+              <owners>withlimon</owners>
               <projectUrl>https://github.com/$repo</projectUrl>
               <projectSourceUrl>https://github.com/$repo</projectSourceUrl>
+              <packageSourceUrl>https://github.com/$repo/blob/main/.github/workflows/release.yml</packageSourceUrl>
+              <iconUrl>https://raw.githubusercontent.com/$repo/main/assets/logo/displon-logo.jpg</iconUrl>
+              <docsUrl>https://github.com/$repo/blob/main/README.md</docsUrl>
+              <releaseNotes>https://github.com/$repo/releases/tag/v$env:VERSION</releaseNotes>
               <bugTrackerUrl>https://github.com/$repo/issues</bugTrackerUrl>
               <licenseUrl>https://www.gnu.org/licenses/gpl-3.0.html</licenseUrl>
               <requireLicenseAcceptance>false</requireLicenseAcceptance>
