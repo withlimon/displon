@@ -1,0 +1,64 @@
+name: PR Test
+
+# Unprivileged: runs PR code with a read-only token and NO secrets.
+# Closing / commenting / mailing is done by pr-guard.yml (never executes PR code).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      LLVM_MINGW_VERSION: "20260908"
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - name: Install llvm-mingw (UCRT, x86_64)
+        shell: pwsh
+        run: |
+          $name = "llvm-mingw-$env:LLVM_MINGW_VERSION-ucrt-x86_64"
+          Invoke-WebRequest "https://github.com/mstorsjo/llvm-mingw/releases/download/$env:LLVM_MINGW_VERSION/$name.zip" -OutFile llvm-mingw.zip
+          Expand-Archive llvm-mingw.zip -DestinationPath "$env:RUNNER_TEMP"
+          "$env:RUNNER_TEMP\$name\bin" | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
+      - run: python -m pip install ninja
+      - name: Configure
+        working-directory: src
+        run: cmake -G Ninja -B build "-DCMAKE_BUILD_TYPE=Release" "-DCMAKE_TOOLCHAIN_FILE=cmake/llvm-mingw-toolchain.cmake"
+      - name: Build
+        working-directory: src
+        run: cmake --build build
+
+  virus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, persist-credentials: false }
+      - name: Install ClamAV + update signatures
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clamav
+          sudo systemctl stop clamav-freshclam || true
+          sudo freshclam
+      - name: ClamAV scan
+        run: clamscan -r --infected --exclude-dir='^\./\.git$' .
+      - name: Block newly added executables
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          bad=$(git diff --name-only --diff-filter=A "$BASE" HEAD | grep -iE '\.(exe|dll|msi|scr|com|jar|vbs|bat|cmd|ps1)$' || true)
+          if [ -n "$bad" ]; then echo "Executables added:"; echo "$bad"; exit 1; fi
+
+  result:
+    needs: [build, virus]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo '{"build":"${{ needs.build.result }}","virus":"${{ needs.virus.result }}","pr":${{ github.event.pull_request.number }},"sha":"${{ github.event.pull_request.head.sha }}"}' > result.json
+          cat result.json
+      - uses: actions/upload-artifact@v4
+        with: { name: pr-result, path: result.json }
