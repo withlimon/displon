@@ -1,0 +1,174 @@
+name: Build Web
+
+# Rebuilds the README-driven sections of index.html (Features, Screenshots,
+# System requirements, Installation) and the matching JSON-LD from README.md,
+# so the website and README never drift apart.
+# Header, Download, Support, License, CSS and the rest of <head> are not touched.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "README.md"
+      - "assets/screenshots/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-web
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build index.html from README.md
+        run: |
+          python3 - <<'PY'
+          import html, json, re, struct, sys
+
+          README, PAGE = "README.md", "index.html"
+          BASE = "https://withlimon.github.io/displon/"
+
+          readme = open(README, encoding="utf-8").read().replace("\r\n", "\n")
+          page = open(PAGE, encoding="utf-8").read()
+
+          def sections(text):
+              """Split README into {'## Title': body} (ignores ## inside code fences)."""
+              out, cur, fence = {}, None, False
+              for line in text.split("\n"):
+                  if line.startswith("```"):
+                      fence = not fence
+                  if not fence and line.startswith("## "):
+                      cur = line[3:].strip().lower()
+                      out[cur] = []
+                  elif cur is not None:
+                      out[cur].append(line)
+              return {k: "\n".join(v).strip("\n") for k, v in out.items()}
+
+          S = sections(readme)
+          esc = lambda t: html.escape(t, quote=False)
+
+          def bullets(body):
+              return [l[2:].strip() for l in body.split("\n") if l.startswith("* ")]
+
+          # ---- Features ----
+          features = bullets(S["features"])
+          features_html = ('<h2 id="features">Features</h2>\n<ul>\n'
+                           + "".join(f"  <li>{esc(f)}</li>\n" for f in features) + "</ul>")
+
+          # ---- Screenshots ----
+          def png_size(path):
+              try:
+                  with open(path, "rb") as f:
+                      h = f.read(24)
+                  if h[:8] == b"\x89PNG\r\n\x1a\n":
+                      return struct.unpack(">II", h[16:24])
+              except OSError:
+                  pass
+              return None
+
+          shots, title = [], None
+          for line in S["screenshots"].split("\n"):
+              if line.startswith("### "):
+                  title = line[4:].strip()
+              m = re.match(r"!\[(.*?)\]\((.*?)\)", line.strip())
+              if m and title:
+                  shots.append((title, m.group(1), m.group(2)))
+                  title = None
+          lines = ""
+          for t, alt, src in shots:
+              size = png_size(src)
+              dims = f' width="{size[0]}" height="{size[1]}"' if size else ""
+              lines += (f"  <h3>{esc(t)}</h3>\n"
+                        f'  <img src="{html.escape(src)}" alt="{html.escape(alt)}"{dims} loading="lazy">\n')
+          shots_html = '<h2 id="screenshots">Screenshots</h2>\n<div class="shots">\n' + lines + "</div>"
+
+          # ---- System requirements ----
+          reqs = [tuple(b.split(": ", 1)) for b in bullets(S["system requirements"]) if ": " in b]
+          req_html = ('<h2 id="requirements">System requirements</h2>\n<table>\n'
+                      + "".join(f"  <tr><td>{esc(k)}</td><td>{esc(v)}</td></tr>\n" for k, v in reqs)
+                      + "</table>")
+
+          # ---- Installation ----
+          def render(chunk):
+              out, fence, code, skip = [], False, [], False
+              for line in chunk.split("\n"):
+                  if line.startswith("```"):
+                      if fence:
+                          body = esc("\n".join(code))
+                          out.append('<div class="code"><button class="copy" type="button" '
+                                     'aria-label="Copy to clipboard">Copy</button>'
+                                     f"<pre><code>{body}</code></pre></div>")
+                          code = []
+                      fence = not fence
+                      continue
+                  if fence:
+                      code.append(line)
+                      continue
+                  if line.startswith("### "):
+                      skip = line[4:].strip().lower().startswith("download")
+                      if not skip:
+                          out.append(f"<h3>{esc(line[4:].strip())}</h3>")
+                      continue
+                  if skip or not line.strip() or line.strip() == "<--":
+                      continue
+                  out.append(f"<p>{esc(line.strip())}</p>")
+              return "\n".join(out)
+
+          install = S["installation"]
+          parts, pos = [], 0
+          for m in re.finditer(r"<!--(.*?)-->", install, re.S):
+              parts.append(("show", install[pos:m.start()]))
+              parts.append(("hide", m.group(1)))
+              pos = m.end()
+          parts.append(("show", install[pos:]))
+          blocks, skipping = [], False
+          for kind, chunk in parts:
+              r = render(chunk)
+              if not r:
+                  continue
+              blocks.append(r if kind == "show" else "<!--\n" + r + "\n-->")
+          install_html = '<h2 id="installation">Installation</h2>\n' + "\n\n".join(blocks)
+
+          # ---- write page sections between markers ----
+          def put(name, content):
+              global page
+              pat = re.compile(rf"(<!-- build:{name} -->\n).*?(\n<!-- /build:{name} -->)", re.S)
+              if not pat.search(page):
+                  sys.exit(f"marker build:{name} not found in {PAGE}")
+              page = pat.sub(lambda m: m.group(1) + content + m.group(2), page, 1)
+
+          put("features", features_html)
+          put("screenshots", shots_html)
+          put("requirements", req_html)
+          put("installation", install_html)
+
+          # ---- keep the JSON-LD in sync with the visible sections ----
+          m = re.search(r'(<script type="application/ld\+json">\n)(.*?)(\n</script>)', page, re.S)
+          data = json.loads(m.group(2))
+          app = next(n for n in data["@graph"] if n.get("@type") == "SoftwareApplication")
+          app["featureList"] = features
+          app["softwareRequirements"] = "; ".join(f"{k}: {v}" for k, v in reqs)
+          app["screenshot"] = [BASE + src for _, _, src in shots]
+          page = page[:m.start(2)] + json.dumps(data, indent=2, ensure_ascii=False) + page[m.end(2):]
+
+          open(PAGE, "w", encoding="utf-8").write(page)
+          print("index.html synced from README.md")
+          PY
+
+      - name: Commit index.html
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "index.html already up to date."
+          else
+            git commit -m "web: sync index.html from README"
+            git pull --rebase origin "${{ github.event.repository.default_branch }}"
+            git push origin "HEAD:${{ github.event.repository.default_branch }}"
+          fi
