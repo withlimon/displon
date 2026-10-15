@@ -1,0 +1,61 @@
+name: Bug report
+description: Something in Displon is not working as expected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. If you are locked out by an active block and cannot recover, email limondasplus@gmail.com as well.
+  - type: input
+    id: version
+    attributes:
+      label: Displon version
+      description: For example 0.1.20261015
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install Displon?
+      options:
+        - Installer from GitHub Releases
+        - Scoop
+        - Chocolatey
+        - winget
+        - Built from source
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: For example Windows 11 23H2 (x64)
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Displon
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or logs
+      description: Drag and drop images or paste any error text here.
