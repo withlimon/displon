@@ -15,7 +15,7 @@
 * Uninstallation block during lockout
 * Block time tracking
 * Custom block duration, from 1 minute to any time range
-* Autoswich between dark and light mode based on system setting
+* Autoswitch between dark and light mode based on system setting
 
 ## Screenshots
 ### Settings 
@@ -39,7 +39,7 @@
 
 ## Installation
 ### Install with Scoop
-Too install Displon,open Poweshell im Administration mode and type:
+To install Displon,open Poweshell im Administration mode and type:
 ```bash
 scoop bucket add displon https://github.com/withlimon/displon
 scoop install displon
