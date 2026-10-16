@@ -24,7 +24,7 @@ jobs:
       changed: ${{ steps.c.outputs.changed }}
       version: ${{ steps.c.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -64,7 +64,7 @@ jobs:
       WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
       CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install llvm-mingw (UCRT, x86_64)
         shell: pwsh
