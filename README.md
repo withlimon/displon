@@ -52,7 +52,7 @@ You can uninstall it by:
 ```bash
 scoop uninstall displon
 ```
-<!--
+
 ### Install with Chocolatey
 To install Displon, open PowerShell in Administrator mode and type:
 ```bash
@@ -66,7 +66,7 @@ You can uninstall it by:
 ```bash
 choco uninstall displon
 ```
-
+<!--
 
 ### Install with winget
 To install Displon, open PowerShell in Administrator mode and type:
