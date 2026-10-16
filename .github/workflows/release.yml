@@ -1,8 +1,8 @@
-name: Daily Release
+name: Weekly Release
 
 on:
   schedule:
-    - cron: "0 3 * * *" # every day, 03:00 UTC
+    - cron: "0 3 * * 1" # every Monday, 03:00 UTC
   workflow_dispatch:
     inputs:
       force:
@@ -36,7 +36,7 @@ jobs:
           if [ -z "$last_tag" ]; then
             count=1
           else
-            count=$(git rev-list "${last_tag}..HEAD" --count -- . ':(exclude)bucket')
+            count=$(git rev-list "${last_tag}..HEAD" --count -- . ':(exclude)bucket' ':(exclude)index.html' ':(exclude)*.md')
           fi
           echo "Last tag: ${last_tag:-none}, new commits: $count"
 
