@@ -71,7 +71,7 @@
       ],
       "keywords": "focus app, distraction blocker, app blocker for Windows, Cold Turkey alternative, Pomodoro timer, whitelist apps, open source, Windows 10, Windows 11",
       "releaseNotes": "https://github.com/withlimon/displon/releases",
-      "softwareRequirements": "Operating system: Windows 10 / 11 (x64); Storage: 20 MB; RAM: 100 MB; GPU: Not required",
+      "softwareRequirements": "",
       "isAccessibleForFree": true,
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
       "image": "https://withlimon.github.io/displon/assets/logo/displon-logo.jpg",
@@ -208,15 +208,21 @@ tr:last-child td{border-bottom:0}
 <!-- build:requirements -->
 <h2 id="requirements">System requirements</h2>
 <table>
-  <tr><td>Operating system</td><td>Windows 10 / 11 (x64)</td></tr>
-  <tr><td>Storage</td><td>20 MB</td></tr>
-  <tr><td>RAM</td><td>100 MB</td></tr>
-  <tr><td>GPU</td><td>Not required</td></tr>
 </table>
 <!-- /build:requirements -->
 
 <!-- build:installation -->
 <h2 id="installation">Installation</h2>
+<p>&gt; [!NOTE]</p>
+<p>&gt; The installer is **not code-signed yet** (new project). Installing with Scoop or Chocolatey avoids the Windows SmartScreen prompt. If you download the `.exe` directly and SmartScreen appears, click **More info → Run anyway**. Verify the SHA256 on the release page.</p>
+<h3>Install with Scoop</h3>
+<p>To install Displon, open PowerShell in Administrator mode and type:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop bucket add displon https://github.com/withlimon/displon
+scoop install displon</code></pre></div>
+<p>You can update easily later by:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop update displon</code></pre></div>
+<p>You can uninstall it by:</p>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop uninstall displon</code></pre></div>
 <h3>Install with Chocolatey</h3>
 <p>To install Displon, open PowerShell in Administrator mode and type:</p>
 <div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>choco install displon</code></pre></div>
@@ -224,46 +230,14 @@ tr:last-child td{border-bottom:0}
 <div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>choco upgrade displon</code></pre></div>
 <p>You can uninstall it by:</p>
 <div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>choco uninstall displon</code></pre></div>
-<h3>Install with Scoop</h3>
-<p>To install Displon,open Poweshell im Administration mode and type:</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop bucket add displon https://github.com/withlimon/displon
-scoop install displon</code></pre></div>
-<p>You can update easily later by:</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop update displon</code></pre></div>
-<p>You can uninstall it by:</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop uninstall displon</code></pre></div>
 
 <!--
-<h3>Install with winget</h3>
-<p>To install Displon, open PowerShell in Administrator mode and type:</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>winget install withlimon.Displon</code></pre></div>
-<p>You can update easily later by:</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>winget upgrade withlimon.Displon</code></pre></div>
-<p>You can uninstall it by:</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>winget uninstall withlimon.Displon</code></pre></div>
+<p>sync:end</p>
 -->
 
-<h3>Build from the Source</h3>
-<h3>Requirements</h3>
-<p>* LLVM-MINGW in the PATH</p>
-<p>* Windows 11</p>
-<p>* CMake,CTest in PATH</p>
-<p>* Ninja Build/GNU Makefile in PATH</p>
-<p>* Git for Windows in PATH</p>
-<p>* Innosetup Compiler in PATH</p>
-<p>#### Clone the repository</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>git clone https://github.com/withlimon/displon</code></pre></div>
-<p>#### Navigate to the directory and Run CMake</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>cd displon/src
-cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release
-cmake --build build</code></pre></div>
-<p>#### Test using ctest</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>ctest --test-dir build --output-on-failure</code></pre></div>
-<p>&gt; [!CAUTION]</p>
-<p>&gt; If you run `DisplonUI.exe` directly from the build directory,it won't work.It will be easy to bypass.Because, it requires to `DisplonService.exe` be installed as Windows Services.So,you need to use installer.</p>
-<p>#### Packaging the installer</p>
-<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>cd installer
-iscc Displon.iss</code></pre></div>
+<!--
+<p>sync:start</p>
+-->
 <!-- /build:installation -->
 
 <h2 id="download">Download</h2>
