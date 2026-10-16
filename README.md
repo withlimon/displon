@@ -38,6 +38,20 @@
 * GPU: Not required
 
 ## Installation
+
+### Install with Chocolatey
+To install Displon, open PowerShell in Administrator mode and type:
+```bash
+choco install displon
+```
+You can update easily later by:
+```bash
+choco upgrade displon
+```
+You can uninstall it by:
+```bash
+choco uninstall displon
+```
 ### Install with Scoop
 To install Displon,open Poweshell im Administration mode and type:
 ```bash
@@ -53,19 +67,6 @@ You can uninstall it by:
 scoop uninstall displon
 ```
 
-### Install with Chocolatey
-To install Displon, open PowerShell in Administrator mode and type:
-```bash
-choco install displon
-```
-You can update easily later by:
-```bash
-choco upgrade displon
-```
-You can uninstall it by:
-```bash
-choco uninstall displon
-```
 <!--
 
 ### Install with winget
@@ -88,7 +89,35 @@ winget uninstall withlimon.Displon
 
 ### Download from Github Releases
 * [Displon x64 Windows](https://github.com/withlimon/displon/releases/latest)
-
+### Build from the Source 
+### Requirements
+* LLVM-MINGW in the PATH
+* Windows 11
+* CMake,CTest in PATH
+* Ninja Build/GNU Makefile in PATH
+* Git for Windows in PATH
+* Innosetup Compiler in PATH
+#### Clone the repository 
+```bash
+git clone https://github.com/withlimon/displon
+```
+#### Navigate to the directory and Run CMake
+```bash
+cd displon/src
+cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+#### Test using ctest
+```bash
+ctest --test-dir build --output-on-failure
+```
+> [!CAUTION]
+> If you run `DisplonUI.exe` directly from the build directory,it won't work.It will be easy to bypass.Because, it requires to `DisplonService.exe` be installed as Windows Services.So,you need to use installer.
+#### Packaging the installer
+```bash
+cd installer
+iscc Displon.iss
+```
 ## Support / Critical Bug
 Open an [issue](https://github.com/withlimon/displon/issues) or email `limondasplus@gmail.com`.
 
