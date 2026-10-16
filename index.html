@@ -71,7 +71,7 @@
       ],
       "keywords": "focus app, distraction blocker, app blocker for Windows, Cold Turkey alternative, Pomodoro timer, whitelist apps, open source, Windows 10, Windows 11",
       "releaseNotes": "https://github.com/withlimon/displon/releases",
-      "softwareRequirements": "",
+      "softwareRequirements": "Operating system: Windows 10 / 11 (x64); Storage: 20 MB; RAM: 100 MB; GPU: Not required",
       "isAccessibleForFree": true,
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
       "image": "https://withlimon.github.io/displon/assets/logo/displon-logo.jpg",
@@ -152,9 +152,14 @@ table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-
 td{padding:8px 14px;border-bottom:1px solid var(--border);color:var(--muted)}
 td:first-child{color:var(--text);width:40%}
 tr:last-child td{border-bottom:0}
-.shots img{display:block;margin:12px 0;border:1px solid var(--border)}
+.shots img,p>img{display:block;margin:12px 0;border:1px solid var(--border)}
 .code{position:relative;margin:12px 0}
 .code pre{margin:0;padding:14px 84px 14px 16px;background:var(--layer);border:1px solid var(--border);border-radius:12px;overflow-x:auto;color:var(--text)}
+.note>:first-child{margin-top:0}
+.note>:last-child{margin-bottom:0}
+blockquote.note{margin:16px 0}
+:not(pre)>code{background:var(--layer);border:1px solid var(--border);border-radius:6px;padding:1px 6px;font-size:.9em;color:var(--text)}
+th{text-align:left;padding:8px 14px;border-bottom:1px solid var(--border);color:var(--text)}
 .copy{position:absolute;top:8px;right:8px;padding:4px 14px;border-radius:999px;border:1px solid var(--text);background:transparent;color:var(--text);font:500 .85rem "IBM Plex Sans",system-ui,"Segoe UI",Arial,sans-serif;cursor:pointer}
 .copy:hover{background:var(--text);color:var(--bg)}
 </style>
@@ -170,52 +175,67 @@ tr:last-child td{border-bottom:0}
   <a class="btn" href="https://github.com/withlimon/displon">View on GitHub</a>
 </header>
 
-<p class="note"><strong>Alpha:</strong> Displon v0.1 is tested on several Windows 11 devices. Windows 10 support is still under testing.</p>
-
-<!-- build:features -->
+<!--sync:start-->
+<blockquote class="note">
+<p><strong>Warning:</strong> Displon is tested on several Windows 11 devices. Windows 10 support is still under testing. More features are being added.</p>
+</blockquote>
 <h2 id="features">Features</h2>
 <ul>
-  <li>Import / export app list from file</li>
-  <li>Pomodoro-based blocking</li>
-  <li>Schedule-based blocking</li>
-  <li>Windows Settings and Task Manager block</li>
-  <li>Autostart block, even if killed from Task Manager or after a system restart</li>
-  <li>Uninstallation block during lockout</li>
-  <li>Block time tracking</li>
-  <li>Custom block duration, from 1 minute to any time range</li>
-  <li>Autoswitch between dark and light mode based on system setting</li>
+<li>Import / export app list from file</li>
+<li>Pomodoro-based blocking</li>
+<li>Schedule-based blocking</li>
+<li>Windows Settings and Task Manager block</li>
+<li>Autostart block, even if killed from Task Manager or after a system restart</li>
+<li>Uninstallation block during lockout</li>
+<li>Block time tracking</li>
+<li>Custom block duration, from 1 minute to any time range</li>
+<li>Autoswitch between dark and light mode based on system setting</li>
 </ul>
-<!-- /build:features -->
-
-<!-- build:screenshots -->
 <h2 id="screenshots">Screenshots</h2>
-<div class="shots">
-  <h3>Settings</h3>
-  <img src="assets/screenshots/displon-settings-block-task-manager-windows.png" alt="Displon settings screen: block Windows Task Manager and Windows Settings, force close or minimize apps" width="1442" height="1000" loading="lazy">
-  <h3>Whitelist</h3>
-  <img src="assets/screenshots/displon-whitelist-allowed-apps-windows.png" alt="Displon whitelist screen: add allowed apps, import or export the app list for Windows" width="1432" height="997" loading="lazy">
-  <h3>Duration</h3>
-  <img src="assets/screenshots/displon-duration-timer-focus-session.png" alt="Displon duration screen: set a focus timer from 1 minute to 1 day or until a date" width="1439" height="997" loading="lazy">
-  <h3>Breaks</h3>
-  <img src="assets/screenshots/displon-breaks-pomodoro-allowance.png" alt="Displon breaks screen: no breaks, Pomodoro or allowance mode for focus blocking" width="1433" height="999" loading="lazy">
-  <h3>Confirmation</h3>
-  <img src="assets/screenshots/displon-start-lock-confirmation.png" alt="Displon ready to lock summary: allowed apps, duration, breaks and blocked Task Manager" width="1434" height="995" loading="lazy">
-  <h3>Lock Finish</h3>
-  <img src="assets/screenshots/displon-block-ended-focus-complete.png" alt="Displon block ended screen showing finished focus session and blocked app history" width="1431" height="999" loading="lazy">
-</div>
-<!-- /build:screenshots -->
-
-<!-- build:requirements -->
-<h2 id="requirements">System requirements</h2>
+<h3 id="settings">Settings</h3>
+<p><img src="assets/screenshots/displon-settings-block-task-manager-windows.png" alt="Displon settings screen: block Windows Task Manager and Windows Settings, force close or minimize apps" loading="lazy" width="1442" height="1000" /></p>
+<h3 id="whitelist">Whitelist</h3>
+<p><img src="assets/screenshots/displon-whitelist-allowed-apps-windows.png" alt="Displon whitelist screen: add allowed apps, import or export the app list for Windows" loading="lazy" width="1432" height="997" /></p>
+<h3 id="duration">Duration</h3>
+<p><img src="assets/screenshots/displon-duration-timer-focus-session.png" alt="Displon duration screen: set a focus timer from 1 minute to 1 day or until a date" loading="lazy" width="1439" height="997" /></p>
+<h3 id="breaks">Breaks</h3>
+<p><img src="assets/screenshots/displon-breaks-pomodoro-allowance.png" alt="Displon breaks screen: no breaks, Pomodoro or allowance mode for focus blocking" loading="lazy" width="1433" height="999" /></p>
+<h3 id="confirmation">Confirmation</h3>
+<p><img src="assets/screenshots/displon-start-lock-confirmation.png" alt="Displon ready to lock summary: allowed apps, duration, breaks and blocked Task Manager" loading="lazy" width="1434" height="995" /></p>
+<h3 id="lock-finish">Lock Finish</h3>
+<p><img src="assets/screenshots/displon-block-ended-focus-complete.png" alt="Displon block ended screen showing finished focus session and blocked app history" loading="lazy" width="1431" height="999" /></p>
+<h2 id="system-requirements">System Requirements</h2>
 <table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Operating system</td>
+<td>Windows 10 / 11 (x64)</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>20 MB</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>100 MB</td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>Not required</td>
+</tr>
+</tbody>
 </table>
-<!-- /build:requirements -->
-
-<!-- build:installation -->
 <h2 id="installation">Installation</h2>
-<p>&gt; [!NOTE]</p>
-<p>&gt; The installer is **not code-signed yet** (new project). Installing with Scoop or Chocolatey avoids the Windows SmartScreen prompt. If you download the `.exe` directly and SmartScreen appears, click **More info → Run anyway**. Verify the SHA256 on the release page.</p>
-<h3>Install with Scoop</h3>
+<blockquote class="note">
+<p><strong>Note:</strong> The installer is <strong>not code-signed yet</strong> (new project). Installing with Scoop or Chocolatey avoids the Windows SmartScreen prompt. If you download the <code>.exe</code> directly and SmartScreen appears, click <strong>More info → Run anyway</strong>. Verify the SHA256 on the release page.</p>
+</blockquote>
+<h3 id="install-with-scoop">Install with Scoop</h3>
 <p>To install Displon, open PowerShell in Administrator mode and type:</p>
 <div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop bucket add displon https://github.com/withlimon/displon
 scoop install displon</code></pre></div>
@@ -223,22 +243,38 @@ scoop install displon</code></pre></div>
 <div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop update displon</code></pre></div>
 <p>You can uninstall it by:</p>
 <div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>scoop uninstall displon</code></pre></div>
-<h3>Install with Chocolatey</h3>
+<h3 id="install-with-chocolatey">Install with Chocolatey</h3>
 <p>To install Displon, open PowerShell in Administrator mode and type:</p>
 <div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>choco install displon</code></pre></div>
 <p>You can update easily later by:</p>
 <div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>choco upgrade displon</code></pre></div>
 <p>You can uninstall it by:</p>
 <div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>choco uninstall displon</code></pre></div>
-
-<!--
-<p>sync:end</p>
--->
-
-<!--
-<p>sync:start</p>
--->
-<!-- /build:installation -->
+<h2 id="build-from-the-source">Build from the Source</h2>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>LLVM-MINGW in the PATH</li>
+<li>Windows 11</li>
+<li>CMake,CTest in PATH</li>
+<li>Ninja Build/GNU Makefile in PATH</li>
+<li>Git for Windows in PATH</li>
+<li>Innosetup Compiler in PATH</li>
+</ul>
+<h4 id="clone-the-repository">Clone the repository</h4>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>git clone https://github.com/withlimon/displon</code></pre></div>
+<h4 id="navigate-to-the-directory-and-run-cmake">Navigate to the directory and Run CMake</h4>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>cd displon/src
+cmake -S . -B build -G &quot;Ninja&quot; -DCMAKE_BUILD_TYPE=Release
+cmake --build build</code></pre></div>
+<h4 id="test-using-ctest">Test using ctest</h4>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>ctest --test-dir build --output-on-failure</code></pre></div>
+<blockquote class="note">
+<p><strong>Caution:</strong> If you run <code>DisplonUI.exe</code> directly from the build directory, it won't work (that would be easy to bypass). It requires <code>DisplonService.exe</code> to be installed as a Windows service, so use the installer.</p>
+</blockquote>
+<h4 id="packaging-the-installer">Packaging the installer</h4>
+<div class="code"><button class="copy" type="button" aria-label="Copy to clipboard">Copy</button><pre><code>cd installer
+iscc Displon.iss</code></pre></div>
+<!--sync:end-->
 
 <h2 id="download">Download</h2>
 <p><a href="https://github.com/withlimon/displon/releases">Displon x64 Windows v0.1 alpha</a></p>
