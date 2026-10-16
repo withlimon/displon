@@ -1,15 +1,16 @@
 name: Build Web
 
-# Rebuilds the README-driven sections of index.html (Features, Screenshots,
-# System requirements, Installation) and the matching JSON-LD from README.md,
-# so the website and README never drift apart.
-# Header, Download, Support, License, CSS and the rest of <head> are not touched.
+# Everything between <!--sync:start--> and <!--sync:end--> in README.md is rendered
+# as Markdown into the same marker pair in index.html, using the site's own design
+# (copy-button code blocks, .note alerts, tables, sized screenshots). Nothing else
+# in index.html is touched.
 on:
   push:
     branches: [main]
     paths:
       - "README.md"
       - "assets/screenshots/**"
+      - ".github/workflows/build-web.yml"
   workflow_dispatch:
 
 permissions:
@@ -25,150 +26,144 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build index.html from README.md
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install markdown-it-py
+        run: python -m pip install "markdown-it-py==4.0.0"
+
+      - name: Render README sync blocks into index.html
         run: |
-          python3 - <<'PY'
-          import html, json, re, struct, sys
+          python - <<'PY'
+          import re
+          import struct
+          import sys
+          from pathlib import Path
 
-          README, PAGE = "README.md", "index.html"
-          BASE = "https://withlimon.github.io/displon/"
+          from markdown_it import MarkdownIt
+          from markdown_it.common.utils import escapeHtml
+          from markdown_it.token import Token
 
-          readme = open(README, encoding="utf-8").read().replace("\r\n", "\n")
-          page = open(PAGE, encoding="utf-8").read()
+          ROOT = Path.cwd()
+          README, PAGE = ROOT / "README.md", ROOT / "index.html"
+          ALERTS = {"NOTE": "Note", "TIP": "Tip", "IMPORTANT": "Important",
+                    "WARNING": "Warning", "CAUTION": "Caution"}
+          BLOCK = re.compile(r"<!--\s*sync:start\s*-->(.*?)<!--\s*sync:end\s*-->", re.S)
 
-          def sections(text):
-              """Split README into {'## Title': body} (ignores ## inside code fences)."""
-              out, cur, fence = {}, None, False
-              for line in text.split("\n"):
-                  if line.startswith("```"):
-                      fence = not fence
-                  if not fence and line.startswith("## "):
-                      cur = line[3:].strip().lower()
-                      out[cur] = []
-                  elif cur is not None:
-                      out[cur].append(line)
-              return {k: "\n".join(v).strip("\n") for k, v in out.items()}
+          md = MarkdownIt("commonmark", {"html": False}).enable(["table", "strikethrough"])
 
-          S = sections(readme)
-          esc = lambda t: html.escape(t, quote=False)
 
-          def bullets(body):
-              return [l[2:].strip() for l in body.split("\n") if l.startswith("* ")]
+          def code_block(self, tokens, idx, options, env):
+              body = escapeHtml(tokens[idx].content.rstrip("\n"))
+              return ('<div class="code"><button class="copy" type="button" '
+                      'aria-label="Copy to clipboard">Copy</button>'
+                      f"<pre><code>{body}</code></pre></div>\n")
 
-          # ---- Features ----
-          features = bullets(S["features"])
-          features_html = ('<h2 id="features">Features</h2>\n<ul>\n'
-                           + "".join(f"  <li>{esc(f)}</li>\n" for f in features) + "</ul>")
 
-          # ---- Screenshots ----
-          def png_size(path):
+          md.add_render_rule("fence", code_block)
+          md.add_render_rule("code_block", code_block)
+
+
+          def strip_comments(text):
+              parts = re.split(r"(^```.*?^```[ \t]*$)", text, flags=re.M | re.S)
+              for i in range(0, len(parts), 2):
+                  parts[i] = re.sub(r"<!--.*?-->", "", parts[i], flags=re.S)
+              return "".join(parts)
+
+
+          def png_size(rel):
               try:
-                  with open(path, "rb") as f:
+                  with open(ROOT / rel, "rb") as f:
                       h = f.read(24)
                   if h[:8] == b"\x89PNG\r\n\x1a\n":
                       return struct.unpack(">II", h[16:24])
               except OSError:
                   pass
-              return None
 
-          shots, title = [], None
-          for line in S["screenshots"].split("\n"):
-              if line.startswith("### "):
-                  title = line[4:].strip()
-              m = re.match(r"!\[(.*?)\]\((.*?)\)", line.strip())
-              if m and title:
-                  shots.append((title, m.group(1), m.group(2)))
-                  title = None
-          lines = ""
-          for t, alt, src in shots:
-              size = png_size(src)
-              dims = f' width="{size[0]}" height="{size[1]}"' if size else ""
-              lines += (f"  <h3>{esc(t)}</h3>\n"
-                        f'  <img src="{html.escape(src)}" alt="{html.escape(alt)}"{dims} loading="lazy">\n')
-          shots_html = '<h2 id="screenshots">Screenshots</h2>\n<div class="shots">\n' + lines + "</div>"
 
-          # ---- System requirements ----
-          reqs = [tuple(b.split(": ", 1)) for b in bullets(S["system requirements"]) if ": " in b]
-          req_html = ('<h2 id="requirements">System requirements</h2>\n<table>\n'
-                      + "".join(f"  <tr><td>{esc(k)}</td><td>{esc(v)}</td></tr>\n" for k, v in reqs)
-                      + "</table>")
+          def decorate(children):
+              for c in children or []:
+                  if c.type == "image":
+                      c.attrSet("loading", "lazy")
+                      size = png_size(c.attrGet("src") or "")
+                      if size:
+                          c.attrSet("width", str(size[0]))
+                          c.attrSet("height", str(size[1]))
+                  elif c.type == "link_open" and (c.attrGet("href") or "").startswith("http"):
+                      c.attrSet("rel", "noopener")
+                  decorate(c.children)
 
-          # ---- Installation ----
-          def render(chunk):
-              out, fence, code, skip = [], False, [], False
-              for line in chunk.split("\n"):
-                  if line.startswith("```"):
-                      if fence:
-                          body = esc("\n".join(code))
-                          out.append('<div class="code"><button class="copy" type="button" '
-                                     'aria-label="Copy to clipboard">Copy</button>'
-                                     f"<pre><code>{body}</code></pre></div>")
-                          code = []
-                      fence = not fence
+
+          def alerts(tokens):
+              """> [!NOTE] ... blocks and plain quotes -> the site's .note box."""
+              for i, t in enumerate(tokens):
+                  if t.type != "blockquote_open":
                       continue
-                  if fence:
-                      code.append(line)
+                  t.attrSet("class", "note")
+                  if tokens[i + 1].type != "paragraph_open":
                       continue
-                  if line.startswith("### "):
-                      skip = line[4:].strip().lower().startswith("download")
-                      if not skip:
-                          out.append(f"<h3>{esc(line[4:].strip())}</h3>")
-                      continue
-                  if skip or not line.strip() or line.strip() == "<--":
-                      continue
-                  out.append(f"<p>{esc(line.strip())}</p>")
-              return "\n".join(out)
+                  inline = tokens[i + 2]
+                  m = re.match(r"\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*\n?", inline.content, re.I)
+                  if m:
+                      rest = inline.content[m.end():]
+                      inline.content = rest
+                      inline.children = md.parseInline(rest)[0].children if rest else []
+                      label = Token("html_inline", "", 0)
+                      label.content = f"<strong>{ALERTS[m.group(1).upper()]}:</strong>" + (" " if rest else "")
+                      inline.children.insert(0, label)
 
-          install = S["installation"]
-          parts, pos = [], 0
-          for m in re.finditer(r"<!--(.*?)-->", install, re.S):
-              parts.append(("show", install[pos:m.start()]))
-              parts.append(("hide", m.group(1)))
-              pos = m.end()
-          parts.append(("show", install[pos:]))
-          blocks, skipping = [], False
-          for kind, chunk in parts:
-              r = render(chunk)
-              if not r:
-                  continue
-              blocks.append(r if kind == "show" else "<!--\n" + r + "\n-->")
-          install_html = '<h2 id="installation">Installation</h2>\n' + "\n\n".join(blocks)
 
-          # ---- write page sections between markers ----
-          def put(name, content):
-              global page
-              pat = re.compile(rf"(<!-- build:{name} -->\n).*?(\n<!-- /build:{name} -->)", re.S)
-              if not pat.search(page):
-                  sys.exit(f"marker build:{name} not found in {PAGE}")
-              page = pat.sub(lambda m: m.group(1) + content + m.group(2), page, 1)
+          def heading_ids(tokens):
+              seen = {}
+              for i, t in enumerate(tokens):
+                  if t.type == "heading_open":
+                      slug = re.sub(r"[^a-z0-9]+", "-", tokens[i + 1].content.lower()).strip("-") or "section"
+                      seen[slug] = seen.get(slug, 0) + 1
+                      t.attrSet("id", slug if seen[slug] == 1 else f"{slug}-{seen[slug]}")
 
-          put("features", features_html)
-          put("screenshots", shots_html)
-          put("requirements", req_html)
-          put("installation", install_html)
 
-          # ---- keep the JSON-LD in sync with the visible sections ----
-          m = re.search(r'(<script type="application/ld\+json">\n)(.*?)(\n</script>)', page, re.S)
-          data = json.loads(m.group(2))
-          app = next(n for n in data["@graph"] if n.get("@type") == "SoftwareApplication")
-          app["featureList"] = features
-          app["softwareRequirements"] = "; ".join(f"{k}: {v}" for k, v in reqs)
-          app["screenshot"] = [BASE + src for _, _, src in shots]
-          page = page[:m.start(2)] + json.dumps(data, indent=2, ensure_ascii=False) + page[m.end(2):]
+          readme = README.read_text(encoding="utf-8").replace("\r\n", "\n")
+          blocks = BLOCK.findall(readme)
+          if not blocks:
+              sys.exit("README.md has no <!--sync:start--> ... <!--sync:end--> block")
 
-          open(PAGE, "w", encoding="utf-8").write(page)
-          print("index.html synced from README.md")
+          tokens = md.parse(strip_comments("\n\n".join(b.strip("\n") for b in blocks)))
+          alerts(tokens)
+          for t in tokens:
+              if t.type == "inline":
+                  decorate(t.children)
+          heading_ids(tokens)
+          html = md.renderer.render(tokens, md.options, {}).strip("\n")
+
+          page = PAGE.read_text(encoding="utf-8")
+          target = re.compile(r"(<!--\s*sync:start\s*-->\n).*?(\n<!--\s*sync:end\s*-->)", re.S)
+          if not target.search(page):
+              sys.exit("index.html has no <!--sync:start--> ... <!--sync:end--> block")
+          new = target.sub(lambda m: m.group(1) + html + m.group(2), page, 1)
+          if new == page:
+              print("index.html already up to date.")
+          else:
+              PAGE.write_text(new, encoding="utf-8")
+              print("index.html synced from README.md")
           PY
 
       - name: Commit index.html
+        env:
+          BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           if git diff --cached --quiet; then
             echo "index.html already up to date."
-          else
-            git commit -m "web: sync index.html from README"
-            git pull --rebase origin "${{ github.event.repository.default_branch }}"
-            git push origin "HEAD:${{ github.event.repository.default_branch }}"
+            exit 0
           fi
+          git commit -m "web: sync index.html from README"
+          for i in 1 2 3; do
+            git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0
+            echo "push failed (attempt $i), retrying..."
+            sleep $((i * 3))
+          done
+          echo "could not push index.html" >&2
+          exit 1
