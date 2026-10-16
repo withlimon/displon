@@ -3,8 +3,9 @@
 # Displon – Free Open Source Focus App & Distraction Blocker for Windows [![CI](https://github.com/withlimon/displon/actions/workflows/ci.yml/badge.svg)](https://github.com/withlimon/displon/actions/workflows/ci.yml)
 **Displon** is a free, open source native Windows app that lets you run only the applications you list. It helps you stop multitasking and focus on a single task with Pomodoro and schedule-based blocking.
 
+<!--sync:start-->
 > [!WARNING]
-> Displon is tested on several Windows 11 devices. Windows 10 support is still under testing.I am also trying to add more features.
+> Displon is tested on several Windows 11 devices. Windows 10 support is still under testing. More features are being added.
 
 ## Features
 * Import / export app list from file
@@ -32,64 +33,53 @@
 ![Displon block ended screen showing finished focus session and blocked app history](assets/screenshots/displon-block-ended-focus-complete.png)
 
 ## System Requirements
-* Operating system: Windows 10 / 11 (x64)
-* Storage: 20 MB
-* RAM: 100 MB
-* GPU: Not required
+| Component | Requirement |
+|---|---|
+| Operating system | Windows 10 / 11 (x64) |
+| Storage | 20 MB |
+| RAM | 100 MB |
+| GPU | Not required |
 
 ## Installation
+> [!NOTE]
+> The installer is **not code-signed yet** (new project). Installing with Scoop or Chocolatey avoids the Windows SmartScreen prompt. If you download the `.exe` directly and SmartScreen appears, click **More info → Run anyway**. Verify the SHA256 on the release page.
 
-### Install with Chocolatey
-To install Displon, open PowerShell in Administrator mode and type:
-```bash
-choco install displon
-```
-You can update easily later by:
-```bash
-choco upgrade displon
-```
-You can uninstall it by:
-```bash
-choco uninstall displon
-```
 ### Install with Scoop
-To install Displon,open Poweshell im Administration mode and type:
-```bash
+To install Displon, open PowerShell in Administrator mode and type:
+```powershell
 scoop bucket add displon https://github.com/withlimon/displon
 scoop install displon
 ```
 You can update easily later by:
-```bash
+```powershell
 scoop update displon
 ```
 You can uninstall it by:
-```bash
+```powershell
 scoop uninstall displon
 ```
 
-<!--
-
-### Install with winget
+### Install with Chocolatey
 To install Displon, open PowerShell in Administrator mode and type:
-```bash
-winget install withlimon.Displon
+```powershell
+choco install displon
 ```
 You can update easily later by:
-```bash
-winget upgrade withlimon.Displon
+```powershell
+choco upgrade displon
 ```
 You can uninstall it by:
-```bash
-winget uninstall withlimon.Displon
+```powershell
+choco uninstall displon
 ```
--->
 
+<!--sync:end-->
 
-
-
-### Download from Github Releases
+### Download from GitHub Releases
 * [Displon x64 Windows](https://github.com/withlimon/displon/releases/latest)
-### Build from the Source 
+
+<!--sync:start-->
+## Build from the Source
 ### Requirements
 * LLVM-MINGW in the PATH
 * Windows 11
@@ -112,12 +102,14 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 > [!CAUTION]
-> If you run `DisplonUI.exe` directly from the build directory,it won't work.It will be easy to bypass.Because, it requires to `DisplonService.exe` be installed as Windows Services.So,you need to use installer.
+> If you run `DisplonUI.exe` directly from the build directory, it won't work (that would be easy to bypass). It requires `DisplonService.exe` to be installed as a Windows service, so use the installer.
 #### Packaging the installer
 ```bash
 cd installer
 iscc Displon.iss
 ```
+<!--sync:end-->
+
 ## Support / Critical Bug
 Open an [issue](https://github.com/withlimon/displon/issues) or email `limondasplus@gmail.com`.
 
