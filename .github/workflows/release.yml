@@ -114,20 +114,38 @@ jobs:
               <id>displon</id>
               <version>$env:VERSION</version>
               <title>Displon</title>
-              <authors>Displon</authors>
+              <authors>Limon Das</authors>
               <owners>withlimon</owners>
+              <copyright>Copyright (c) 2026 Limon Das</copyright>
               <projectUrl>https://github.com/$repo</projectUrl>
               <projectSourceUrl>https://github.com/$repo</projectSourceUrl>
               <packageSourceUrl>https://github.com/$repo/blob/main/.github/workflows/release.yml</packageSourceUrl>
-              <iconUrl>https://raw.githubusercontent.com/$repo/main/assets/logo/displon-logo.jpg</iconUrl>
+              <iconUrl>https://raw.githubusercontent.com/$repo/${{ github.sha }}/src/assets/icons/displon-256.png</iconUrl>
               <docsUrl>https://github.com/$repo/blob/main/README.md</docsUrl>
               <releaseNotes>https://github.com/$repo/releases/tag/v$env:VERSION</releaseNotes>
               <bugTrackerUrl>https://github.com/$repo/issues</bugTrackerUrl>
-              <licenseUrl>https://www.gnu.org/licenses/gpl-3.0.html</licenseUrl>
+              <licenseUrl>https://github.com/$repo/blob/main/LICENSE</licenseUrl>
               <requireLicenseAcceptance>false</requireLicenseAcceptance>
-              <tags>focus pomodoro distraction-blocker productivity windows</tags>
+              <tags>displon focus pomodoro distraction-blocker website-blocker app-blocker productivity windows foss</tags>
               <summary>Free open source focus app and distraction blocker for Windows</summary>
-              <description>Displon lets you run only the applications you list, with Pomodoro and schedule-based blocking.</description>
+              <description><![CDATA[
+          **Displon** is a free, open source, native Windows app that lets you run only the applications you list, so you can stop multitasking and focus on one task.
+
+          ## Features
+          * Allow-list (whitelist) of apps, with import / export of the list
+          * Pomodoro-based blocking and schedule-based blocking
+          * Custom block duration, from 1 minute to any time range
+          * Blocks Windows Settings and Task Manager during a session
+          * Autostart block that survives Task Manager kills and restarts
+          * Uninstall block while a lock is active
+          * Block time tracking
+          * Automatic dark / light mode
+
+          ## Notes
+          * Requires Windows 10 / 11 (x64). Windows 11 is the tested platform.
+          * Installs a background Windows service, so run the install from an elevated (admin) shell.
+          * The installer is not code-signed yet.
+          ]]></description>
             </metadata>
             <files><file src="tools\**" target="tools" /></files>
           </package>
