@@ -9,7 +9,7 @@ jobs:
     env:
       LLVM_MINGW_VERSION: "20260908"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install llvm-mingw (UCRT, x86_64)
         shell: pwsh
@@ -32,7 +32,7 @@ jobs:
         run: cmake --build build
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: displon-windows-x64
           path: |
